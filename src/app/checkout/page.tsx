@@ -92,10 +92,14 @@ export default function CheckoutPage() {
           if (!response.ok) {
             throw new Error("Failed to fetch cart");
           }
-
           const cartData = await response.json();
 
-          if (!cartData || !cartData.items || cartData.items.length === 0) {
+          if (
+            !cartData ||
+            !cartData.cart ||
+            !cartData.cart.items ||
+            cartData.cart.items.length === 0
+          ) {
             toast.error(
               "Your cart is empty. Please add products to your cart first."
             );
@@ -103,10 +107,8 @@ export default function CheckoutPage() {
             return;
           }
 
-          setCart(cartData);
-
-          // Calculate subtotal
-          const calculatedSubtotal = cartData.items.reduce(
+          setCart(cartData.cart); // Calculate subtotal
+          const calculatedSubtotal = cartData.cart.items.reduce(
             (acc: number, item: CartItem) => {
               const price = item.product.discountedPrice || item.product.price;
               return acc + price * item.quantity;
