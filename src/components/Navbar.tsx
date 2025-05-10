@@ -49,7 +49,7 @@ function Navbar() {
             // Calculate total items in cart
             let totalItems = 0;
             if (data.cart && data.cart.items) {
-              data.cart.items.forEach((item: any) => {
+              data.cart.items.forEach((item: { quantity: number }) => {
                 totalItems += item.quantity;
               });
             }

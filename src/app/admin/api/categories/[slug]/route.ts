@@ -3,14 +3,15 @@ import dbConnect from '@/utils/dbconnect';
 import Category from '@/models/Category';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params;
   try {
     await dbConnect();
     
     // Find category by slug
-    const category = await Category.findOne({ slug: params.slug });
+    const category = await Category.findOne({ slug: slug });
     
     if (!category) {
       return NextResponse.json(
@@ -34,8 +35,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  {params}: { params: Promise<{ slug: string }> }
 ) {
+  const {slug} = await params;
   try {
     await dbConnect();
     
@@ -43,7 +45,7 @@ export async function PUT(
     
     // Find and update category
     const category = await Category.findOneAndUpdate(
-      { slug: params.slug },
+      { slug: slug },
       data,
       { new: true, runValidators: true }
     );
@@ -70,13 +72,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  {params}: { params: Promise<{ slug: string }> }
 ) {
+  const {slug} = await params;
   try {
     await dbConnect();
     
     // Find and delete category
-    const category = await Category.findOneAndDelete({ slug: params.slug });
+    const category = await Category.findOneAndDelete({ slug: slug });
     
     if (!category) {
       return NextResponse.json(

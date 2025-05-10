@@ -9,10 +9,8 @@ export async function GET(request: NextRequest) {
     
     // Get URL search parameters
     const searchParams = request.nextUrl.searchParams;
-    
-    // Build query object
-    const query: any = {};
-    
+      // Build query object
+    const query: Record<string, unknown> = {};
     // Filter by category if provided
     const categoryId = searchParams.get('category');
     if (categoryId) {
