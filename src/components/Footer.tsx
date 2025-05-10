@@ -171,13 +171,13 @@ const Footer = () => {
                 >
                   Feedback
                 </Link>
-              </li>
+              </li>{" "}
               <li>
                 <Link
-                  href="/privacy-policy"
+                  href="/policies"
                   className="text-gray-400 hover:text-blue-400 transition-colors"
                 >
-                  Privacy Policy
+                  Our Policies
                 </Link>
               </li>
             </ul>
@@ -318,10 +318,11 @@ const Footer = () => {
               © {currentYear} Drushti Eye Care. All rights reserved.
             </p>
             <div className="mt-4 md:mt-0">
+              {" "}
               <ul className="flex space-x-4 text-sm">
                 <li>
                   <Link
-                    href="/terms-conditions"
+                    href="/policies?tab=terms"
                     className="text-gray-500 hover:text-gray-300"
                   >
                     Terms & Conditions
@@ -329,7 +330,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/privacy-policy"
+                    href="/policies?tab=privacy"
                     className="text-gray-500 hover:text-gray-300"
                   >
                     Privacy Policy
@@ -337,10 +338,18 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/sitemap"
+                    href="/policies?tab=shipping"
                     className="text-gray-500 hover:text-gray-300"
                   >
-                    Sitemap
+                    Shipping
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/policies?tab=refunds"
+                    className="text-gray-500 hover:text-gray-300"
+                  >
+                    Refunds
                   </Link>
                 </li>
               </ul>
