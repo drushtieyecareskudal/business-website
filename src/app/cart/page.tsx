@@ -215,7 +215,7 @@ export default function CartPage() {
           </svg>
           <h2 className="text-xl font-semibold mb-2">Your cart is empty</h2>
           <p className="text-gray-500 mb-6">
-            Looks like you haven't added any products to your cart yet
+            Looks like you haven&apos;t added any products to your cart yet
           </p>
           <Link href="/category">
             <Button className="bg-blue-600 hover:bg-blue-700">
@@ -394,21 +394,20 @@ export default function CartPage() {
                   ₹{subtotal.toLocaleString()}
                 </span>
               </div>
-
               <div className="flex justify-between pb-3 border-b">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium text-green-600">Free</span>
               </div>
-
               <div className="flex justify-between pb-3 text-lg font-bold">
                 <span>Total</span>
                 <span>₹{subtotal.toLocaleString()}</span>
-              </div>
-
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 py-6">
+              </div>{" "}
+              <Button
+                className="w-full bg-blue-600 hover:bg-blue-700 py-6"
+                onClick={() => router.push("/checkout")}
+              >
                 Proceed to Checkout
               </Button>
-
               <p className="text-center text-sm text-gray-500 mt-4">
                 or{" "}
                 <Link
