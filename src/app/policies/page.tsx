@@ -1,45 +1,49 @@
-"use client";
-
-import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 export default function PoliciesPage() {
-  const searchParams = useSearchParams();
-  const tab = searchParams.get("tab");
-
-  // Determine default tab based on URL parameter
-  const getDefaultTab = () => {
-    if (tab === "terms") return "terms";
-    if (tab === "privacy") return "privacy";
-    if (tab === "refunds") return "refunds";
-    if (tab === "shipping") return "shipping";
-    return "shipping"; // Default tab
-  };
-
   return (
-    <div className="py-12 px-4">
-      <h1 className="text-3xl font-bold text-center mb-8">Our Policies</h1>
-      <p className="text-center text-gray-600 max-w-3xl mx-auto mb-8">
-        We are committed to providing our customers with transparent and fair
-        policies. Please review the following information about our shipping,
-        returns, privacy practices, and terms of use.
-      </p>
+    <>
+      <div className="py-12 px-4">
+        <h1 className="text-3xl font-bold text-center mb-8">Our Policies</h1>
+        <p className="text-center text-gray-600 max-w-3xl mx-auto mb-8">
+          We are committed to providing our customers with transparent and fair
+          policies. Please review the following information about our shipping,
+          returns, privacy practices, and terms of use.
+        </p>
 
-      <div className="max-w-4xl mx-auto">
-        <Tabs defaultValue={getDefaultTab()} className="w-full">
-          <TabsList className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-            <TabsTrigger value="shipping">Shipping Policy</TabsTrigger>
-            <TabsTrigger value="terms">Terms & Conditions</TabsTrigger>
-            <TabsTrigger value="refunds">Cancellations & Refunds</TabsTrigger>
-            <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
-          </TabsList>
-
+        <div className="max-w-4xl mx-auto">
+          <div
+            id="table-of-contents"
+            className="mb-8 bg-gray-50 p-6 rounded-lg"
+          >
+            <h2 className="text-xl font-bold mb-4">Contents</h2>
+            <ul className="space-y-2">
+              <li>
+                <a href="#shipping" className="text-blue-600 hover:underline">
+                  1. Shipping Policy
+                </a>
+              </li>
+              <li>
+                <a href="#terms" className="text-blue-600 hover:underline">
+                  2. Terms & Conditions
+                </a>
+              </li>
+              <li>
+                <a href="#refunds" className="text-blue-600 hover:underline">
+                  3. Cancellations & Refunds
+                </a>
+              </li>
+              <li>
+                <a href="#privacy" className="text-blue-600 hover:underline">
+                  4. Privacy Policy
+                </a>
+              </li>
+            </ul>
+          </div>
           {/* Shipping Policy */}
-          <TabsContent
-            value="shipping"
-            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm"
+          <div
+            id="shipping"
+            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm mb-8 scroll-mt-24"
           >
             <h2 className="text-2xl font-semibold mb-4">Shipping Policy</h2>
             <div className="space-y-4">
@@ -103,12 +107,12 @@ export default function PoliciesPage() {
                 </p>
               </div>
             </div>
-          </TabsContent>
+          </div>
 
           {/* Terms and Conditions */}
-          <TabsContent
-            value="terms"
-            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm"
+          <div
+            id="terms"
+            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm mb-8 scroll-mt-24"
           >
             <h2 className="text-2xl font-semibold mb-4">Terms & Conditions</h2>
             <div className="space-y-4">
@@ -124,7 +128,6 @@ export default function PoliciesPage() {
                   between you and Drushti Eye Care.
                 </p>
               </div>
-
               <div>
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">
                   Product Information
@@ -137,7 +140,6 @@ export default function PoliciesPage() {
                   refuse or cancel orders.
                 </p>
               </div>
-
               <div>
                 {" "}
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">
@@ -151,7 +153,6 @@ export default function PoliciesPage() {
                   under your account.
                 </p>
               </div>
-
               <div>
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">
                   Limitation of Liability
@@ -163,7 +164,6 @@ export default function PoliciesPage() {
                   or products.
                 </p>
               </div>
-
               <div>
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">
                   Intellectual Property
@@ -176,7 +176,6 @@ export default function PoliciesPage() {
                   without our express consent.
                 </p>
               </div>
-
               <div>
                 <h3 className="text-lg font-semibold text-blue-800 mb-2">
                   Governing Law
@@ -187,14 +186,13 @@ export default function PoliciesPage() {
                   relating to these terms and conditions shall be subject to the
                   exclusive jurisdiction of the courts in Kudal, Maharashtra.
                 </p>
-              </div>
+              </div>{" "}
             </div>
-          </TabsContent>
+          </div>
 
-          {/* Cancellations and Refunds */}
-          <TabsContent
-            value="refunds"
-            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm"
+          <div
+            id="refunds"
+            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm mb-8 scroll-mt-24"
           >
             <h2 className="text-2xl font-semibold mb-4">
               Cancellations & Refunds
@@ -274,12 +272,11 @@ export default function PoliciesPage() {
                 </p>
               </div>
             </div>
-          </TabsContent>
-
+          </div>
           {/* Privacy Policy */}
-          <TabsContent
-            value="privacy"
-            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm"
+          <div
+            id="privacy"
+            className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm scroll-mt-24"
           >
             <h2 className="text-2xl font-semibold mb-4">Privacy Policy</h2>
             <div className="space-y-4">
@@ -365,10 +362,9 @@ export default function PoliciesPage() {
                 </p>
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
-
       <div className="mt-12 text-center">
         <p className="text-gray-600 mb-4">
           If you have any questions about our policies, please don&apos;t
@@ -390,6 +386,6 @@ export default function PoliciesPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </>
   );
 }

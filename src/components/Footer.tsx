@@ -322,7 +322,7 @@ const Footer = () => {
               <ul className="flex space-x-4 text-sm">
                 <li>
                   <Link
-                    href="/policies?tab=terms"
+                    href="/policies#terms"
                     className="text-gray-500 hover:text-gray-300"
                   >
                     Terms & Conditions
@@ -330,7 +330,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/policies?tab=privacy"
+                    href="/policies#privacy"
                     className="text-gray-500 hover:text-gray-300"
                   >
                     Privacy Policy
@@ -338,7 +338,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/policies?tab=shipping"
+                    href="/policies#shipping"
                     className="text-gray-500 hover:text-gray-300"
                   >
                     Shipping
@@ -346,7 +346,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
-                    href="/policies?tab=refunds"
+                    href="/policies#refunds"
                     className="text-gray-500 hover:text-gray-300"
                   >
                     Refunds
