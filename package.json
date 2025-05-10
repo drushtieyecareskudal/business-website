@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "build-no-lint": "next build --no-lint",
+    "build-ignore-errors": "NEXT_TELEMETRY_DISABLED=1 next build --no-lint",
     "start": "next start",
     "lint": "next lint"
   },
