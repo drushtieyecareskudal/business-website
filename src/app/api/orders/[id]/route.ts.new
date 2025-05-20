@@ -1,0 +1,139 @@
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "@/utils/dbconnect";
+import Order, { OrderInterface } from "@/models/Order";
+import Product from "@/models/Product";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+
+// TypeScript utility types for API responses
+interface ApiSuccessResponse<T> {
+  success: true;
+  order: T;
+}
+
+interface ApiErrorResponse {
+  success: false;
+  message: string;
+  error?: string;
+}
+
+// Define ProductType for use with populated orders
+interface ProductType {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  discountedPrice?: number;
+  images: string[];
+  [key: string]: unknown;
+}
+
+// Use OrderInterface from the Order.ts model
+type OrderType = OrderInterface;
+
+// Define interfaces for JWT token
+interface DecodedToken {
+  id: string;
+  [key: string]: unknown;
+}
+
+// Helper function to get user ID from token
+const getUserId = async (): Promise<string | null> => {
+  try {
+    // Type assertion to handle the cookies() function's return type
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as DecodedToken;
+    return decoded.id;
+  } catch {
+    return null;
+  }
+};
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    console.log(`GET /api/orders/${params.id} - Fetching order details`);
+    const userId = await getUserId();
+    console.log("User ID from token:", userId);
+    
+    if (!userId) {
+      console.log("Authentication failed - no user ID from token");
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" } as ApiErrorResponse,
+        { status: 401 }
+      );
+    }
+    
+    await dbConnect();
+    console.log("Database connected");
+
+    const id = params.id;
+    console.log("Looking for order with ID:", id);
+    
+    try {
+      const order = await Order.findById(id).populate({
+        path: "items.product",
+        model: Product,
+        select: "name slug images price discountedPrice",
+      }) as unknown as OrderType;
+
+      console.log("Order found:", order ? "Yes" : "No");
+
+      // Verify that the order belongs to the logged-in user
+      if (!order) {
+        console.log("Order not found");
+        return NextResponse.json(
+          { success: false, message: "Order not found" } as ApiErrorResponse,
+          { status: 404 }
+        );
+      }
+
+      console.log("Order user ID:", order.user.toString());
+      console.log("Current user ID:", userId);
+      
+      if (order.user.toString() !== userId) {
+        console.log("Order belongs to a different user");
+        return NextResponse.json(
+          { success: false, message: "Order not found" } as ApiErrorResponse,
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ success: true, order } as ApiSuccessResponse<OrderType>);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error fetching order:", error);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Error fetching order",
+          error: errorMessage,
+        } as ApiErrorResponse,
+        { status: 500 }
+      );
+    }
+  } catch (error: unknown) {
+    // Handle errors from getUserId, dbConnect, or other general errors not caught by the inner try-catch
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error(
+      `General error in GET /api/orders/[id] route for ID ${params?.id}:`,
+      error
+    );
+    return NextResponse.json(
+      {
+        success: false,
+        message: "An unexpected server error occurred.",
+        error: errorMessage,
+      } as ApiErrorResponse,
+      { status: 500 }
+    );
+  }
+}

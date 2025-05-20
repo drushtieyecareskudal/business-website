@@ -1,0 +1,218 @@
+import { NextRequest, NextResponse } from "next/server";
+import Order from "@/models/Order";
+import Product from "@/models/Product";
+import dbConnect from "@/utils/dbconnect";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+
+// TypeScript utility types for API responses
+interface ApiSuccessResponse<T> {
+  success: true;
+  order?: T;
+  orders?: T[];
+}
+
+interface ApiErrorResponse {
+  success: false;
+  message: string;
+  error?: string;
+}
+
+// Request body interface for order creation
+interface CreateOrderRequestBody {
+  shippingAddress: {
+    name: string;
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phone: string;
+  };
+  paymentMethod: string;
+  items: Array<{
+    product: string;
+    quantity: number;
+    price: number;
+  }>;
+  totalAmount: number;
+}
+
+// Define interfaces for JWT token
+interface DecodedToken {
+  id: string;
+  [key: string]: unknown;
+}
+
+// Helper function to get user ID from token
+const getUserId = async (): Promise<string | null> => {
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as DecodedToken;
+    return decoded.id;
+  } catch {
+    return null;
+  }
+};
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log("POST /api/orders - Starting order creation");
+    const userId = await getUserId();
+    console.log("User ID from token:", userId);
+
+    if (!userId) {
+      console.log("Authentication failed - no user ID from token");
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" } as ApiErrorResponse,
+        { status: 401 }
+      );
+    }
+    await dbConnect();
+    console.log("Database connected");
+
+    const requestBody = await request.json() as CreateOrderRequestBody;
+    console.log("Request body:", JSON.stringify(requestBody));
+
+    const { shippingAddress, paymentMethod, items, totalAmount } = requestBody;
+
+    // Validate required fields
+    if (!shippingAddress || !paymentMethod || !items || !totalAmount) {
+      console.log("Missing required fields:", {
+        hasShippingAddress: !!shippingAddress,
+        hasPaymentMethod: !!paymentMethod,
+        hasItems: !!items,
+        hasTotalAmount: !!totalAmount,
+      });
+      return NextResponse.json(
+        { success: false, message: "Missing required fields" } as ApiErrorResponse,
+        { status: 400 }
+      );
+    }
+
+    // Create order
+    console.log("Creating order with data:", {
+      userId,
+      itemsCount: items.length,
+      totalAmount,
+      paymentMethod,
+    });
+
+    try {
+      const order = new Order({
+        user: userId,
+        items,
+        totalAmount,
+        shippingAddress,
+        paymentMethod,
+        paymentStatus: "paid", // Since we're simulating payment, mark as paid
+        status: "processing", // Initial status
+      });
+
+      console.log("Order model created, saving...");
+      await order.save();
+      console.log("Order saved with ID:", order._id);
+
+      // Populate product info for response
+      try {        const populatedOrder = await Order.findById(order._id).populate({
+          path: "items.product",
+          model: Product,
+          select: "name slug images",
+        });
+        
+        console.log("Order populated successfully");
+        return NextResponse.json(
+          { success: true, order: populatedOrder },
+          { status: 201 }
+        );
+      } catch (populateError) {
+        console.error("Error populating order:", populateError);
+        // Still return a success response with the unpopulated order        return NextResponse.json(
+          { success: true, order: order },
+          { status: 201 }
+        );
+      }
+    } catch (saveError: unknown) {
+      const errorMessage = saveError instanceof Error ? saveError.message : 'Unknown error';
+      console.error("Error saving order:", saveError);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Error saving order",
+          error: errorMessage,
+        } as ApiErrorResponse,
+        { status: 500 }
+      );
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Error creating order:", error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        message: "Error creating order", 
+        error: errorMessage 
+      } as ApiErrorResponse,
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    console.log("GET /api/orders - Fetching all orders");
+    const userId = await getUserId();
+    console.log("User ID from token:", userId);
+
+    if (!userId) {
+      console.log("Authentication failed - no user ID from token");
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" } as ApiErrorResponse,
+        { status: 401 }
+      );
+    }
+    await dbConnect();
+    console.log("Database connected");
+
+    try {
+      const orders = await Order.find({ user: userId })
+        .populate({
+          path: "items.product",
+          model: Product,
+          select: "name slug images",
+        })
+        .sort({ createdAt: -1 }) as unknown as OrderInterface[];
+
+      console.log(`Found ${orders.length} orders for user`);
+      return NextResponse.json({ success: true, orders } as ApiSuccessResponse<OrderInterface>);
+    } catch (findError: unknown) {
+      const errorMessage = findError instanceof Error ? findError.message : 'Unknown error';
+      console.error("Error fetching orders:", findError);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Error fetching orders",
+          error: errorMessage,
+        } as ApiErrorResponse,
+        { status: 500 }
+      );
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("Error fetching orders:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Error fetching orders",
+        error: errorMessage,
+      } as ApiErrorResponse,
+      { status: 500 }
+    );
+  }
+}

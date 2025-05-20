@@ -1,8 +1,39 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-const orderItemSchema = new mongoose.Schema({
+// Define TypeScript interfaces for the schemas
+export interface OrderItemInterface {
+  product: mongoose.Schema.Types.ObjectId | string;
+  quantity: number;
+  price: number;
+  _id?: string;
+}
+
+export interface ShippingAddressInterface {
+  name: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+}
+
+export interface OrderInterface extends Document {
+  user: mongoose.Schema.Types.ObjectId | string;
+  items: OrderItemInterface[];
+  totalAmount: number;
+  shippingAddress: ShippingAddressInterface;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  paymentMethod: string;
+  paymentStatus: "pending" | "paid" | "failed";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Create the Mongoose schemas
+const orderItemSchema = new Schema<OrderItemInterface>({
   product: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "Product",
     required: true,
   },
@@ -18,9 +49,9 @@ const orderItemSchema = new mongoose.Schema({
   },
 });
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new Schema<OrderInterface>({
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
@@ -78,11 +109,13 @@ orderSchema.pre("validate", function (next) {
 // Update the updatedAt timestamp before saving
 orderSchema.pre("save", function (next) {
   console.log("Saving order with ID:", this._id);
-  this.updatedAt = Date.now();
+  this.updatedAt = new Date();
   next();
 });
 
 // Prevent model recompilation during development with Next.js hot reloading
-const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
+const Order: Model<OrderInterface> = 
+  mongoose.models.Order as Model<OrderInterface> || 
+  mongoose.model<OrderInterface>("Order", orderSchema);
 
 export default Order;

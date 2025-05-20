@@ -50,9 +50,12 @@ export default function OrdersPage() {
           if (!response.ok) {
             throw new Error("Failed to fetch orders");
           }
-
           const ordersData = await response.json();
-          setOrders(ordersData);
+          if (ordersData.success) {
+            setOrders(ordersData.orders);
+          } else {
+            throw new Error(ordersData.message || "Failed to fetch orders");
+          }
         } catch (error) {
           console.error("Error fetching orders:", error);
           toast.error("Error loading your orders");

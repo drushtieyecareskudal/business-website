@@ -208,32 +208,42 @@ export default function CheckoutPage() {
 
     try {
       // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Create order
+      console.log("Preparing to create order with data:", {
+        itemsCount: cart?.items.length,
+        totalAmount: subtotal,
+      });
 
-      // Create order
+      const orderPayload = {
+        shippingAddress,
+        paymentMethod: "Credit Card", // In a real app, you might want to allow selection
+        items: cart?.items.map((item) => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          price: item.product.discountedPrice || item.product.price,
+        })),
+        totalAmount: subtotal,
+      };
+
+      console.log("Sending order data:", JSON.stringify(orderPayload));
+
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          shippingAddress,
-          paymentMethod: "Credit Card", // In a real app, you might want to allow selection
-          items: cart?.items.map((item) => ({
-            product: item.product._id,
-            quantity: item.quantity,
-            price: item.product.discountedPrice || item.product.price,
-          })),
-          totalAmount: subtotal,
-        }),
+        body: JSON.stringify(orderPayload),
       });
+      console.log("Order API response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("API error response:", errorData);
         throw new Error(errorData.message || "Failed to create order");
       }
 
       const orderData = await response.json();
+      console.log("Order created successfully:", orderData);
 
       // Clear cart after successful order
       await fetch("/api/cart", {
@@ -242,7 +252,9 @@ export default function CheckoutPage() {
 
       // Show success and redirect to order confirmation
       toast.success("Order placed successfully!");
-      router.push(`/orders/${orderData._id}`);
+      router.push(
+        `/orders/${orderData.success ? orderData.order._id : orderData._id}`
+      );
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error("Failed to place order. Please try again.");
@@ -464,12 +476,14 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-semibold mb-4">
                 Payment Information
               </h2>
+              {/*
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                 <p className="text-sm text-yellow-800">
                   <strong>Demo Mode:</strong> This is a simulation. No real
                   payment will be processed.
                 </p>
               </div>
+              */}
 
               <div className="space-y-4">
                 <div>

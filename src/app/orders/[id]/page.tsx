@@ -45,11 +45,16 @@ interface Order {
   updatedAt: string;
 }
 
-export default function OrderPage({ params }: { params: { id: string } }) {
+export default function OrderPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const orderId = React.use(params).id;
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -62,7 +67,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
         setLoading(true);
         try {
-          const response = await fetch(`/api/orders/${params.id}`);
+          const response = await fetch(`/api/orders/${orderId}`);
           if (!response.ok) {
             if (response.status === 404) {
               toast.error("Order not found.");
@@ -71,9 +76,12 @@ export default function OrderPage({ params }: { params: { id: string } }) {
             }
             throw new Error("Failed to fetch order");
           }
-
           const orderData = await response.json();
-          setOrder(orderData);
+          if (orderData.success) {
+            setOrder(orderData.order);
+          } else {
+            throw new Error(orderData.message || "Failed to fetch order");
+          }
         } catch (error) {
           console.error("Error fetching order:", error);
           toast.error("Error loading order data");
@@ -83,10 +91,10 @@ export default function OrderPage({ params }: { params: { id: string } }) {
       }
     };
 
-    if (params.id) {
+    if (orderId) {
       fetchOrder();
     }
-  }, [user, authLoading, router, params.id]);
+  }, [user, authLoading, router, orderId]);
 
   // Format date
   const formatDate = (dateString: string) => {
