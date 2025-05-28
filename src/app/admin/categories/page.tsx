@@ -28,7 +28,7 @@ export default function CategoriesPage() {
     async function fetchCategories() {
       try {
         // Using admin-specific API route
-        const response = await fetch("/admin/api/categories", {
+        const response = await fetch("/api/categories", {
           headers: {
             Authorization: `Basic ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 // Category form interface
 interface CategoryForm {
@@ -357,7 +358,7 @@ export default function AddCategoryPage() {
               {imagePreviewUrl && (
                 <div className="mt-4 flex justify-center">
                   <div className="relative rounded-lg overflow-hidden border border-gray-200 w-48 h-48">
-                    <img
+                    <Image
                       src={imagePreviewUrl}
                       alt={`Category preview`}
                       className="w-full h-full object-cover"

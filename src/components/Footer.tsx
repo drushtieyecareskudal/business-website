@@ -10,15 +10,38 @@ import { useState } from "react";
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [errorSubscribe, setErrorSubscribe] = useState(false);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       // Here you would integrate with your email service
-      console.log("Subscribed with:", email);
-      setSubscribed(true);
-      setEmail("");
-      setTimeout(() => setSubscribed(false), 5000);
+      // console.log("Subscribed with:", email);
+      fetch("/api/news_subscriber", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
+        .then((res) => {
+          if (res.ok) {
+            setSubscribed(true);
+            setErrorSubscribe(false);
+            setEmail("");
+          } else {
+            setErrorSubscribe(true);
+            setSubscribed(false);
+          }
+        })
+        .catch((err) => {
+          console.error("Subscription error:", err);
+          setErrorSubscribe(true);
+          setSubscribed(true);
+        })
+        .finally(() => {
+          setTimeout(() => setSubscribed(false), 5000);
+        });
     }
   };
 
@@ -297,11 +320,16 @@ const Footer = () => {
               >
                 Subscribe
               </Button>
-              {subscribed && (
-                <p className="text-green-400 text-sm mt-2">
-                  Thank you for subscribing!
-                </p>
-              )}
+              {subscribed &&
+                (errorSubscribe ? (
+                  <p className="text-red-400 text-sm mt-2">
+                    Subscription failed. Please try again.
+                  </p>
+                ) : (
+                  <p className="text-green-400 text-sm mt-2">
+                    Thank you for subscribing!
+                  </p>
+                ))}
             </form>
           </div>
         </div>

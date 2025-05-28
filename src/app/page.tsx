@@ -45,7 +45,7 @@ export default function Home() {
             Ready to Find Your Perfect Pair?
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Visit our store today or explore our collections online. We're
+            Visit our store today or explore our collections online. We&apos;re
             committed to helping you find eyewear that suits your style,
             prescription, and budget.
           </p>

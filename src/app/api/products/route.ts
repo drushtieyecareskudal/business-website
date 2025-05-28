@@ -35,7 +35,8 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     
     // Execute query with pagination
-    const products = await Product.find(query)
+    // const products = await Product.find(query)
+    const products = await Product.find()
       .sort({ createdAt: -1 }) // Newest first
       .skip(skip)
       .limit(limit)

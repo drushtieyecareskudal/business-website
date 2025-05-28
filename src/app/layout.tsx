@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   creator: "Drushti Eye Care",
   publisher: "Drushti Eye Care",
   robots: "index, follow",
+  metadataBase: new URL("https://drushti-eye-care.vercel.app"),
   openGraph: {
     title: "Drushti Eye Care - Quality Eye Wear in Kudal",
     description: "Premium eye care services and products at affordable prices",
@@ -30,12 +31,16 @@ export const metadata: Metadata = {
     locale: "en_IN",
     type: "website",
   },
-  themeColor: "#ffffff",
-  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

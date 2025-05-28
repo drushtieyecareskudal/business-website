@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { ContactInfo } from "@/utils/globas";
 
 // FAQ categories and questions
 const faqCategories = [
@@ -175,8 +176,8 @@ export default function FAQPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Still Have Questions?</h2>
           <p className="text-gray-700 mb-6">
-            Can't find the answer you're looking for? Please feel free to reach
-            out to our friendly customer service team.
+            Can&apos;t find the answer you&apos;re looking for? Please feel free
+            to reach out to our friendly customer service team.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
@@ -189,7 +190,7 @@ export default function FAQPage() {
               href="tel:+911234567890"
               className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 py-3 px-6 rounded-md transition-colors"
             >
-              Call Us: +91 12345 67890
+              Call Us: {ContactInfo.phone}
             </Link>
           </div>
         </div>

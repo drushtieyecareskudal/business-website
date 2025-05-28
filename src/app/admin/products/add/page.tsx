@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 // Product form interface
 interface ProductForm {
@@ -694,7 +695,7 @@ export default function AddProductPage() {
                       key={index}
                       className="relative rounded-lg overflow-hidden border border-gray-200"
                     >
-                      <img
+                      <Image
                         src={url}
                         alt={`Preview ${index + 1}`}
                         className="h-24 w-full object-cover"

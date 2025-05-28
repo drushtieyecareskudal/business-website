@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ContactInfo } from "@/utils/globas";
 import { useState } from "react";
 import { toast } from "sonner"; // Changed to import from sonner
 
@@ -79,20 +80,20 @@ export default function ContactPage() {
         <div className="space-y-6">
           <div>
             <h2 className="text-xl font-semibold mb-1">Main Office</h2>
-            <p>Drushti Eye Care, Kudal Main Road, Kudal, Maharashtra 416520</p>
+            <p>{ContactInfo.mainOffice}</p>
           </div>
           <div>
             <h3 className="font-medium">Phone:</h3>
-            <p className="text-muted-foreground">+91 98765 43210</p>
+            <p className="text-muted-foreground">{ContactInfo.phone}</p>
           </div>
           <div>
             <h3 className="font-medium">Email:</h3>
-            <p className="text-muted-foreground">contact@drushtieyecare.in</p>
+            <p className="text-muted-foreground">{ContactInfo.email}</p>
           </div>
           <div>
             <h3 className="font-medium">Hours:</h3>
             <p className="text-muted-foreground">
-              Mon – Sat: 9:00 AM – 8:00 PM
+              Mon - Sat: 9:00 AM - 8:00 PM
             </p>
           </div>
         </div>

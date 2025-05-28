@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
+// import { Card, CardContent } from "@/components/ui/card";
 
 // Product interface based on our mongoose model
 interface Product {
@@ -39,7 +40,7 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/admin/api/products");
+        const response = await fetch("/api/products");
 
         if (!response.ok) {
           throw new Error("Failed to fetch products");
@@ -192,9 +193,11 @@ export default function ProductsPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                           {product.images && product.images.length > 0 ? (
-                            <img
+                            <Image
                               src={product.images[0]}
                               alt={product.name}
+                              width={64}
+                              height={64}
                               className="h-full w-full object-cover object-center"
                             />
                           ) : (

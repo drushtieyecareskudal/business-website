@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
-import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect";
+import { ContactInfo } from "@/utils/globas";
 
 export default function AboutPage() {
   return (
@@ -33,17 +33,9 @@ export default function AboutPage() {
             and fashion trends, bringing you the best selection of eyewear
             combined with expert care and advice.
           </p>
+          <p className="text-gray-500 text-right">-{ContactInfo.name}</p>
         </div>
         <div className="relative">
-          <CanvasRevealEffect
-            animationSpeed={3}
-            containerClassName="bg-white"
-            colors={[
-              [236, 72, 153],
-              [232, 121, 249],
-            ]}
-            dotSize={2}
-          />
           <Image
             src="/owner.jpg"
             alt="Drushti Eye Care Owner"
@@ -133,8 +125,8 @@ export default function AboutPage() {
             </div>
             <h3 className="font-semibold text-xl mb-3">Competitive Pricing</h3>
             <p className="text-gray-600">
-              We believe good vision should be accessible to all. That's why we
-              offer a range of products at various price points without
+              We believe good vision should be accessible to all. That&apos;s
+              why we offer a range of products at various price points without
               compromising on quality.
             </p>
           </div>

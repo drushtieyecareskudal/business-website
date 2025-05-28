@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import Image from "next/image";
 
 // Types
 interface ProductForm {
@@ -75,7 +76,7 @@ export default function EditProductPage({
         setLoading(true);
 
         // Fetch product details
-        const productResponse = await fetch(`/admin/api/products/${id}`);
+        const productResponse = await fetch(`/api/products/${id}`);
 
         if (!productResponse.ok) {
           throw new Error("Failed to fetch product details");
@@ -84,7 +85,7 @@ export default function EditProductPage({
         const productData = await productResponse.json();
 
         // Fetch categories
-        const categoriesResponse = await fetch("/admin/api/categories");
+        const categoriesResponse = await fetch("/api/categories");
 
         if (!categoriesResponse.ok) {
           throw new Error("Failed to fetch categories");
@@ -226,10 +227,11 @@ export default function EditProductPage({
 
   // Remove a specification
   const removeSpecification = (key: string) => {
-    const { [key]: _, ...rest } = formData.specifications;
+    const updatedSpecifications = { ...formData.specifications };
+    delete updatedSpecifications[key];
     setFormData((prev) => ({
       ...prev,
-      specifications: rest,
+      specifications: updatedSpecifications,
     }));
   };
 
@@ -493,7 +495,7 @@ export default function EditProductPage({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {formData.images.map((image, index) => (
                 <div key={index} className="relative group">
-                  <img
+                  <Image
                     src={image}
                     alt={`Product image ${index + 1}`}
                     className="h-32 w-full object-cover rounded-md border"

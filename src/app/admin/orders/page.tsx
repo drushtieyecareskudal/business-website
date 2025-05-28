@@ -103,7 +103,7 @@ export default function OrdersPage() {
     newStatus: Order["status"]
   ) => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
+      const response = await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

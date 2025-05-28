@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
+import { ContactInfo } from "@/utils/globas";
 
 function OwnerMessageSection() {
   return (
@@ -25,7 +26,7 @@ function OwnerMessageSection() {
                 />
               </div>
               <div className="text-center mt-4">
-                <h3 className="font-bold text-lg">Dr. Rajesh Patel</h3>
+                <h3 className="font-bold text-lg">{ContactInfo.name}</h3>
                 <p className="text-gray-600">Founder & Chief Optometrist</p>
               </div>
             </div>
@@ -53,13 +54,13 @@ function OwnerMessageSection() {
                 </p>
                 <p className="text-gray-700 mb-4">
                   With over 20 years of experience in optometry, I understand
-                  the importance of clear vision in everyday life. That's why we
-                  not only offer stylish frames but also ensure precision in
-                  every prescription lens we craft.
+                  the importance of clear vision in everyday life. That&apos;s
+                  why we not only offer stylish frames but also ensure precision
+                  in every prescription lens we craft.
                 </p>
                 <p className="text-gray-700">
                   At Drushti Eye Care, we treat every customer as family. Your
-                  satisfaction and eye health are our priorities, and we're
+                  satisfaction and eye health are our priorities, and we&apos;re
                   committed to providing personalized service that meets your
                   unique needs. I invite you to visit our store and experience
                   the difference that quality eyecare can make.
