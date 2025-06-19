@@ -361,7 +361,9 @@ export default function AddCategoryPage() {
                     <Image
                       src={imagePreviewUrl}
                       alt={`Category preview`}
-                      className="w-full h-full object-cover"
+                      layout="fill"
+                      objectFit="cover"
+                      className="w-full h-full"
                     />
                     <button
                       type="button"

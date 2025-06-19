@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
+import { ContactInfo } from "@/utils/globas";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -225,11 +226,7 @@ const Footer = () => {
                     <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
                   </svg>
                 </div>
-                <div className="text-gray-400">
-                  123 Eye Street, Optical Park,
-                  <br />
-                  Lens City, LC 12345
-                </div>
+                <div className="text-gray-400">{ContactInfo.mainOffice}</div>
               </li>
               <li className="flex items-center">
                 <div className="mr-3">
@@ -245,10 +242,10 @@ const Footer = () => {
                   </svg>
                 </div>
                 <a
-                  href="tel:+919876543210"
+                  href={`tel:${ContactInfo.phone}`}
                   className="text-gray-400 hover:text-blue-400 transition-colors"
                 >
-                  +91 98765 43210
+                  {ContactInfo.phone}
                 </a>
               </li>
               <li className="flex items-center">
@@ -265,10 +262,10 @@ const Footer = () => {
                   </svg>
                 </div>
                 <a
-                  href="mailto:info@drushtieyecare.com"
+                  href={`mailto:${ContactInfo.email}`}
                   className="text-gray-400 hover:text-blue-400 transition-colors"
                 >
-                  info@drushtieyecare.com
+                  {ContactInfo.email}
                 </a>
               </li>
               <li className="flex items-center">

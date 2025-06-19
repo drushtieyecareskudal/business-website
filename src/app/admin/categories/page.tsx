@@ -57,10 +57,14 @@ export default function CategoriesPage() {
   }, []);
 
   const handleDeleteCategory = async (id: string, slug: string) => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${slug}? This will delete all the products under.`
+      )
+    ) {
       try {
         // Using slug instead of id to match the API route structure
-        const response = await fetch(`/admin/api/categories/${slug}`, {
+        const response = await fetch(`/admin/api/categories/${id}`, {
           method: "DELETE",
         });
         const data = await response.json();

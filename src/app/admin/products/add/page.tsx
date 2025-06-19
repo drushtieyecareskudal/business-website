@@ -697,8 +697,10 @@ export default function AddProductPage() {
                     >
                       <Image
                         src={url}
-                        alt={`Preview ${index + 1}`}
-                        className="h-24 w-full object-cover"
+                        alt={`Product preview ${1}`}
+                        layout="fill"
+                        objectFit="cover"
+                        className="w-full h-full"
                       />
                       <button
                         type="button"

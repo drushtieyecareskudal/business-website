@@ -70,14 +70,14 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/admin/orders");
+        const response = await fetch("/api/orders");
 
         if (!response.ok) {
           throw new Error("Failed to fetch orders");
         }
 
         const data = await response.json();
-        setOrders(data);
+        setOrders(data.orders);
       } catch (err: unknown) {
         const errorMessage =
           err instanceof Error ? err.message : "An unknown error occurred";
@@ -97,14 +97,16 @@ export default function OrdersPage() {
       ? orders
       : orders.filter((order) => order.status === activeTab);
 
+  console.log(filteredOrders);
+
   // Update order status
   const updateOrderStatus = async (
     orderId: string,
     newStatus: Order["status"]
   ) => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`, {
-        method: "PATCH",
+      const response = await fetch(`/admin/api/orders/${orderId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
