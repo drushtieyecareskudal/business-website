@@ -25,6 +25,7 @@ export async function GET(req) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
       }
     } catch (error) {
+      console.log(error);
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 

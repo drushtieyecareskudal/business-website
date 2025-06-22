@@ -3,21 +3,48 @@ import dbConnect from "@/utils/dbconnect";
 import Order from "@/models/Order";
 import User from "@/models/User";
 import Product from "@/models/Product";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+
+// Helper function to get authenticated admin user
+const getAuthenticatedAdmin = async () => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    if (typeof decoded === "string") {
+      return null;
+    }
+
+    // Find user and check if admin
+    const user = await User.findById(decoded.id);
+    if (!user || user.role !== "admin") {
+      return null;
+    }
+
+    return user;
+  } catch {
+    return null;
+  }
+};
 
 export async function GET(request, { params }) {
   try {
-    const session = await getServerSession(authOptions);
+    await dbConnect();
 
-    if (!session || !session.user || session.user.role !== "admin") {
+    const admin = await getAuthenticatedAdmin();
+
+    if (!admin) {
       return new NextResponse(
         JSON.stringify({ message: "Unauthorized. Admin access required." }),
         { status: 403 }
       );
     }
-
-    await dbConnect();
 
     const orderId = params.id;
 
@@ -57,11 +84,10 @@ export async function PATCH(request, { params }) {
     // Get the order ID from the URL params
     const orderId = params.id;
 
-    // Get the admin session
-    const session = await getServerSession(authOptions);
-
     // Check if user is authenticated and is an admin
-    if (!session || !session.user || !session.user.isAdmin) {
+    const admin = await getAuthenticatedAdmin();
+
+    if (!admin) {
       return new NextResponse(
         JSON.stringify({ message: "Unauthorized. Admin access required." }),
         { status: 403 }
