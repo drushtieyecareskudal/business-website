@@ -37,12 +37,24 @@ export async function POST(request: NextRequest) {
       success: true,
       product,
     }, { status: 201 });
-
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error creating product:", error);
+    
+    // Provide more specific error messages
+    if (error instanceof Error && error.name === 'ValidationError') {
+      const typedError = error as unknown as { errors: Record<string, { message: string }> };
+      const validationErrors = Object.values(typedError.errors).map((err) => err.message);
+      return NextResponse.json({
+        success: false,
+        error: "Validation failed: " + validationErrors.join(', '),
+        details: typedError.errors,
+      }, { status: 400 });
+    }
+    
     return NextResponse.json({
       success: false,
       error: "Failed to create product",
+      details: error instanceof Error ? error.message : String(error),
     }, { status: 500 });
   }
 }

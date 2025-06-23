@@ -68,11 +68,37 @@ export default function AddCategoryPage() {
     const value = parseInt(e.target.value);
     setFormData({ ...formData, order: isNaN(value) ? 0 : value });
   };
-
   // Handle image upload
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        setMessage({
+          text: "Image file is too large. Please select a file smaller than 10MB.",
+          type: "error",
+        });
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+        "image/webp",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        setMessage({
+          text: "Please select a valid image file (JPEG, PNG, or WebP).",
+          type: "error",
+        });
+        return;
+      }
+
+      console.log("File selected:", file.name, file.size, file.type);
       setFormData({ ...formData, image: file });
 
       // Generate preview URL
@@ -81,6 +107,9 @@ export default function AddCategoryPage() {
         setImagePreviewUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Clear any previous error messages
+      setMessage(null);
     }
   };
 
@@ -94,10 +123,11 @@ export default function AddCategoryPage() {
   const toggleActive = () => {
     setFormData({ ...formData, active: !formData.active });
   };
-
   // Helper function to upload image
   const uploadImage = async (image: File): Promise<string> => {
     try {
+      console.log("Starting image upload:", image.name, image.size);
+
       const formData = new FormData();
       formData.append("file", image);
 
@@ -107,19 +137,32 @@ export default function AddCategoryPage() {
         body: formData,
       });
 
+      console.log("Upload response status:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload image");
+        console.error("Upload error:", errorData);
+        throw new Error(
+          errorData.error || `HTTP ${response.status}: Failed to upload image`
+        );
       }
 
       const data = await response.json();
+      console.log("Upload success:", data);
+
+      if (!data.success || !data.imageUrl) {
+        throw new Error("Invalid response from upload API");
+      }
+
       return data.imageUrl;
     } catch (error) {
       console.error("Error uploading image:", error);
+      if (error instanceof Error) {
+        throw new Error(`Upload failed: ${error.message}`);
+      }
       throw new Error("Failed to upload image. Please try again.");
     }
   };
-
   // Form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -127,6 +170,8 @@ export default function AddCategoryPage() {
     setMessage(null);
 
     try {
+      console.log("Form submission started:", formData);
+
       // Validate form
       if (!formData.name || !formData.slug) {
         throw new Error("Please fill in all required fields");
@@ -135,7 +180,17 @@ export default function AddCategoryPage() {
       // Upload image first (if any)
       let imageUrl = "";
       if (formData.image) {
+        console.log(
+          "Uploading image:",
+          formData.image.name,
+          formData.image.size
+        );
+        setMessage({
+          text: "Uploading image...",
+          type: "success",
+        });
         imageUrl = await uploadImage(formData.image);
+        console.log("Image uploaded successfully:", imageUrl);
       }
 
       // Prepare the data to send to the API
@@ -148,6 +203,12 @@ export default function AddCategoryPage() {
         active: formData.active,
       };
 
+      console.log("Sending category data:", categoryData);
+      setMessage({
+        text: "Saving category...",
+        type: "success",
+      });
+
       // Send the data to the admin API
       const response = await fetch("/admin/api/categories", {
         method: "POST",
@@ -159,6 +220,7 @@ export default function AddCategoryPage() {
       });
 
       const result = await response.json();
+      console.log("Category API response:", result);
 
       if (!response.ok) {
         throw new Error(result.error || "Failed to add category");
@@ -266,7 +328,6 @@ export default function AddCategoryPage() {
               </p>
             </div>
           </div>
-
           {/* Category Description */}
           <div>
             <Label htmlFor="description">Description</Label>
@@ -279,7 +340,6 @@ export default function AddCategoryPage() {
               className="mt-1 h-32"
             />
           </div>
-
           {/* Order */}
           <div>
             <Label htmlFor="order">Display Order</Label>
@@ -297,7 +357,6 @@ export default function AddCategoryPage() {
               Lower numbers will appear first. Default is 0.
             </p>
           </div>
-
           {/* Active Status Checkbox */}
           <div className="flex items-center space-x-2">
             <input
@@ -308,11 +367,14 @@ export default function AddCategoryPage() {
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <Label htmlFor="active">Active Category</Label>
-          </div>
-
+          </div>{" "}
           {/* Category Image */}
           <div>
             <Label>Category Image</Label>
+            <p className="text-xs text-blue-600 mb-2">
+              💡 If upload fails, check the browser console (F12) for detailed
+              error information.
+            </p>
             <div className="mt-1 border-2 border-dashed border-gray-300 rounded-lg p-6">
               <div className="text-center">
                 <svg
@@ -357,12 +419,13 @@ export default function AddCategoryPage() {
 
               {imagePreviewUrl && (
                 <div className="mt-4 flex justify-center">
+                  {" "}
                   <div className="relative rounded-lg overflow-hidden border border-gray-200 w-48 h-48">
                     <Image
                       src={imagePreviewUrl}
                       alt={`Category preview`}
-                      layout="fill"
-                      objectFit="cover"
+                      fill
+                      style={{ objectFit: "cover" }}
                       className="w-full h-full"
                     />
                     <button
@@ -390,7 +453,6 @@ export default function AddCategoryPage() {
               )}
             </div>
           </div>
-
           {/* Submit Button */}
           <div className="flex justify-end">
             <Button

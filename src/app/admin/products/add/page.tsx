@@ -82,9 +82,13 @@ export default function AddProductPage() {
         if (!response.ok) {
           throw new Error("Failed to fetch categories");
         }
-
         const data = await response.json();
         if (data.success) {
+          console.log(
+            "Categories loaded:",
+            data.categories.length,
+            "categories"
+          );
           setCategories(data.categories);
         } else {
           console.error("Error fetching categories:", data.error);
@@ -122,11 +126,42 @@ export default function AddProductPage() {
     const value = parseFloat(e.target.value);
     setFormData({ ...formData, [field]: isNaN(value) ? 0 : value });
   };
-
   // Handle image upload
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+
+      // Validate each file
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+        "image/webp",
+      ];
+
+      for (const file of filesArray) {
+        if (file.size > maxSize) {
+          setMessage({
+            text: `File "${file.name}" is too large. Please select files smaller than 10MB.`,
+            type: "error",
+          });
+          return;
+        }
+
+        if (!allowedTypes.includes(file.type)) {
+          setMessage({
+            text: `File "${file.name}" is not a valid image. Please select JPEG, PNG, or WebP files.`,
+            type: "error",
+          });
+          return;
+        }
+      }
+
+      console.log(
+        "Files selected:",
+        filesArray.map((f) => `${f.name} (${f.size} bytes, ${f.type})`)
+      );
       setFormData({ ...formData, images: [...formData.images, ...filesArray] });
 
       // Generate preview URLs
@@ -137,6 +172,9 @@ export default function AddProductPage() {
         };
         reader.readAsDataURL(file);
       });
+
+      // Clear any previous error messages
+      setMessage(null);
     }
   };
 
@@ -225,14 +263,20 @@ export default function AddProductPage() {
   const toggleBestSeller = () => {
     setFormData({ ...formData, bestSeller: !formData.bestSeller });
   };
-
   // Helper function to upload images
   const uploadImages = async (images: File[]): Promise<string[]> => {
     try {
+      console.log(
+        "Starting image uploads:",
+        images.map((img) => `${img.name} (${img.size} bytes)`)
+      );
+
       const uploadedUrls = [];
 
       // Upload each image sequentially
       for (const image of images) {
+        console.log("Uploading:", image.name);
+
         const formData = new FormData();
         formData.append("file", image);
 
@@ -242,18 +286,34 @@ export default function AddProductPage() {
           body: formData,
         });
 
+        console.log("Upload response status:", response.status);
+
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to upload image");
+          console.error("Upload error:", errorData);
+          throw new Error(
+            errorData.error ||
+              `HTTP ${response.status}: Failed to upload ${image.name}`
+          );
         }
 
         const data = await response.json();
+        console.log("Upload success for", image.name, ":", data);
+
+        if (!data.success || !data.imageUrl) {
+          throw new Error(`Invalid response from upload API for ${image.name}`);
+        }
+
         uploadedUrls.push(data.imageUrl);
       }
 
+      console.log("All uploads completed:", uploadedUrls);
       return uploadedUrls;
     } catch (error) {
       console.error("Error uploading images:", error);
+      if (error instanceof Error) {
+        throw new Error(`Upload failed: ${error.message}`);
+      }
       throw new Error("Failed to upload images. Please try again.");
     }
   };
@@ -263,17 +323,30 @@ export default function AddProductPage() {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
-
     try {
       // Validate form
-      if (
-        !formData.name ||
-        !formData.price ||
-        !formData.category ||
-        !formData.slug
-      ) {
-        throw new Error("Please fill in all required fields including slug");
+      const missingFields = [];
+      if (!formData.name) missingFields.push("Product name");
+      if (!formData.slug) missingFields.push("Slug");
+      if (!formData.price || formData.price <= 0)
+        missingFields.push("Valid price");
+      if (!formData.category) missingFields.push("Category");
+      if (missingFields.length > 0) {
+        throw new Error(`Please provide: ${missingFields.join(", ")}`);
       }
+
+      // Verify that the selected category exists
+      const selectedCategory = categories.find(
+        (cat) => cat._id === formData.category
+      );
+      if (!selectedCategory) {
+        throw new Error(
+          "Invalid category selected. Please select a valid category."
+        );
+      }
+
+      console.log("Form validation passed. Category ID:", formData.category);
+      console.log("Selected category:", selectedCategory.name);
 
       // Upload images first (if any)
       let imageUrls: string[] = [];
@@ -427,7 +500,6 @@ export default function AddProductPage() {
               </p>
             </div>
           </div>
-
           {/* Product Description */}
           <div>
             <Label htmlFor="description">Description*</Label>
@@ -441,7 +513,6 @@ export default function AddProductPage() {
               className="mt-1 h-32"
             />
           </div>
-
           {/* Prices and Stock */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
@@ -493,7 +564,6 @@ export default function AddProductPage() {
               />
             </div>
           </div>
-
           {/* Category Selection */}
           <div>
             <Label htmlFor="category">Category*</Label>
@@ -505,15 +575,18 @@ export default function AddProductPage() {
               required
               className="mt-1 w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value="">Select a category</option>
+              <option value="">
+                {categories.length === 0
+                  ? "Loading categories..."
+                  : "Select a category"}
+              </option>
               {categories.map((category) => (
-                <option key={category._id} value={category.slug}>
+                <option key={category._id} value={category._id}>
                   {category.name}
                 </option>
               ))}
             </select>
           </div>
-
           {/* Best Seller Checkbox */}
           <div className="flex items-center space-x-2">
             <input
@@ -525,7 +598,6 @@ export default function AddProductPage() {
             />
             <Label htmlFor="bestSeller">Mark as Best Seller</Label>
           </div>
-
           {/* Product Colors */}
           <div>
             <Label>Product Colors</Label>
@@ -579,7 +651,6 @@ export default function AddProductPage() {
               </div>
             )}
           </div>
-
           {/* Product Features */}
           <div>
             <div className="flex justify-between items-center mb-2">
@@ -640,11 +711,14 @@ export default function AddProductPage() {
                 </div>
               ))}
             </div>
-          </div>
-
+          </div>{" "}
           {/* Product Images */}
           <div>
             <Label>Product Images*</Label>
+            <p className="text-xs text-blue-600 mb-2">
+              💡 If upload fails, check the browser console (F12) for detailed
+              error information.
+            </p>
             <div className="mt-1 border-2 border-dashed border-gray-300 rounded-lg p-6">
               <div className="text-center">
                 <svg
@@ -693,13 +767,14 @@ export default function AddProductPage() {
                   {imagePreviewUrls.map((url, index) => (
                     <div
                       key={index}
-                      className="relative rounded-lg overflow-hidden border border-gray-200"
+                      className="relative rounded-lg overflow-hidden border border-gray-200 aspect-square"
                     >
+                      {" "}
                       <Image
                         src={url}
-                        alt={`Product preview ${1}`}
-                        layout="fill"
-                        objectFit="cover"
+                        alt={`Product preview ${index + 1}`}
+                        fill
+                        style={{ objectFit: "cover" }}
                         className="w-full h-full"
                       />
                       <button
@@ -728,7 +803,6 @@ export default function AddProductPage() {
               )}
             </div>
           </div>
-
           {/* Product Specifications */}
           <div>
             <div className="flex justify-between items-center mb-2">
@@ -800,7 +874,6 @@ export default function AddProductPage() {
               ))}
             </div>
           </div>
-
           {/* Submit Button */}
           <div className="flex justify-end">
             <Button

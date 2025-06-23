@@ -202,7 +202,7 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
         className={`${
@@ -294,9 +294,9 @@ export default function AdminLayout({
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <div className="main flex-1">
         <div className="max-w-7xl mx-auto p-6">{children}</div>
-      </main>
+      </div>
     </div>
   );
 }
