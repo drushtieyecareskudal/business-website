@@ -9,7 +9,12 @@ type DashboardStats = {
   totalProducts: number;
   totalCategories: number;
   totalOrders: number;
-  recentProducts: any[];
+  recentProducts: {
+    _id: string;
+    name: string;
+    price: number;
+    category: string;
+  }[];
 };
 
 export default function AdminDashboard() {
@@ -27,36 +32,11 @@ export default function AdminDashboard() {
       try {
         // In a real application, you would fetch this data from your API
         // For now, we'll use placeholder data
-        const data = {
-          totalProducts: 24,
-          totalCategories: 4,
-          totalOrders: 18,
-          recentProducts: [
-            {
-              _id: "1",
-              name: "Round Frame Eyeglasses",
-              price: 1499,
-              category: "eyeglasses",
-            },
-            {
-              _id: "2",
-              name: "Polarized Sunglasses",
-              price: 2999,
-              category: "sunglasses",
-            },
-            {
-              _id: "3",
-              name: "Monthly Contact Lenses",
-              price: 899,
-              category: "contact-lenses",
-            },
-            {
-              _id: "4",
-              name: "Glasses Cleaning Kit",
-              price: 299,
-              category: "accessories",
-            },
-          ],
+        const data: DashboardStats = {
+          totalProducts: 0,
+          totalCategories: 0,
+          totalOrders: 0,
+          recentProducts: [],
         };
 
         setStats(data);
